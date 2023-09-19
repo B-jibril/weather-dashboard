@@ -93,6 +93,49 @@ function renderForecast(weatherData) {
 
     forecastContainer.html("")
     forecastContainer.append(headingCol);
+
+    let futureForecast = weatherData.filter(function (forecast) {
+        return forecast.dt_txt.includes("12")
+    })
+
+    console.log(futureForecast);
+
+    for (let i = 0; i < futureForecast; i++) {
+        let iconURL = `https://openweathermap.org/img/w/${futureForecast[i].weather[0].icon}.png`
+        let iconDescription = futureForecast[i].weather[0].description;
+        let tempC = futureForecast[i].main.temp;
+        let humidity = futureForecast[i].main.humidity;
+        let windKph = futureForecast[i].wind.speed;
+
+        let col = $("<div>");
+        let card = $("<div>");
+        let cardBody = $("<div>");
+        let cardTitle = $("<h5>");
+        let weatherIcon = $("<img>");
+        let tempEl = $("<p>");
+        let windEl = $("<p>");
+        let humidityEl = $("<p>");
+
+        col.append(card);
+        card.append(cardBody);
+        cardBody.append(cardTitle, weatherIcon, tempEl, windEl, humidityEl);
+
+        col.attr("class", "col-md");
+        card.attr("class", "card bg-primary h-100 text-white");
+        cardTitle.attr("class", "card-title");
+        tempEl.attr("class", "card-text");
+        windEl.attr("class", "card-text");
+        humidityEl.attr("class", "card-text");
+
+        cardTitle.text(moment(futureForecast[i].dt.text).format("D/M/YYYY"))
+        weatherIcon.attr("src", iconURL);
+        weatherIcon.attr("alt", iconDescription);
+        tempEl.text(`Temp ${tempC} C`);
+        windEl.text(`Wind: ${windKph} KPH`);
+        humidityEl.text(`Humidity ${humidity} %`);
+
+        forecastContainer.append(col);
+    }
 }
 
 
