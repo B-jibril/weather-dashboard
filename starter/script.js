@@ -6,7 +6,9 @@ let searchHistory = []
 
 let searchInput = $("#search-input");
 let searchForm = $("#search-form");
-let searchHistoryContainer = $("#history")
+let searchHistoryContainer = $("#history");
+let forecastContainer = $("#forecast");
+let todayContainer = $("#today");
 
 function renderSearchHistory() {
 
@@ -35,6 +37,66 @@ function appendSearchHistory(search) {
     renderSearchHistory()
 }
 
+function renderCurrentWeather(city, weatherData) {
+    let data = moment().format("D/M/YYYY");
+    let tempC = weatherData["main"]["temp"];
+    let windKph = weatherData["wind"]["speed"];
+    let humidity = weatherData["main"]["humidity"]
+
+    let iconUrl = `https://openweathermap.org/img/w/${weatherData.weather[0].icon}.png`;
+    let iconDescription = weatherData.weather[0].description || weatherData[0].main
+
+    let card = $("<div>")
+    let cardBody = $("<div>")
+    let weatherIcon = $("<img>")
+
+    let heading = $("<h2>")
+    let tempEl = $("<p>")
+    let windEl = $("<p>")
+
+    let humidityEl = $("<p>")
+
+    card.attr("class", "card");
+    cardBody.attr("class", "card-body");
+
+    card.append(cardBody);
+
+    heading.attr("class", "h3 card-title");
+    tempEl.attr("class", "card-text");
+    windEl.attr("class", "card-text");
+    humidityEl.attr("class", "card-text");
+
+    heading.text(`${city} (${data})`);
+    weatherIcon.attr("src", iconUrl);
+    weatherIcon.attr("alt", iconDescription);
+
+    heading.append(weatherIcon);
+    tempEl.text(`Temp ${tempC} C`);
+    windEl.text(`wind ${windKph} KPH`);
+    humidityEl.text(`Humidity  ${humidity} %`);
+    cardBody.append(heading, tempEl, windEl, humidityEl);
+
+
+    todayContainer.html("");
+    todayContainer.append(card);
+}
+
+
+function renderForecast(weatherData) {
+    console.log(weatherData);
+    let headingCol = $("<div>");
+    let heading = $("<h4>");
+
+    headingCol.attr("class", "col-12");
+    heading.text("5-day forecast ");
+    headingCol.append(heading);
+
+    forecastContainer.html("")
+    forecastContainer.append(headingCol);
+}
+
+
+
 function fetchWeather(location) {
 
     let latitude = location.lat;
@@ -51,6 +113,8 @@ function fetchWeather(location) {
 
     }).then(function (response) {
         renderCurrentWeather(city, response.list[0])
+        console.log("testing to see if  render current finishes ")
+        renderForecast(response.list);
     })
 }
 
@@ -85,13 +149,23 @@ function submitSearchForm(event) {
     event.preventDefault();
     let search = searchInput.val().trim();
 
-    fetchCoord(search)
+    fetchCoord(search);
     searchInput.val("");
 
 }
 
+function ClickSearchHistory(event) {
+    if (!$(event.target).hasClass("btn-history")) {
+        return
+    }
+    let search = $(event.target).attr("data-search")
+    fetchCoord(search);
+    searchInput.val();
+}
+
 initializeHistory()
 searchForm.on("submit", submitSearchForm)
+searchHistoryContainer.on("click", ClickSearchHistory);
 
 
 
